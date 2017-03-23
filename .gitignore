@@ -5,6 +5,8 @@
 /dist
 /tmp
 
+/config
+
 .htaccess
 # dependencies
 /node_modules
