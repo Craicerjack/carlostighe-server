@@ -7,6 +7,7 @@ var logger = require('morgan');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var spotify = require('./routes/spotify');
 
 var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 var app = express();
@@ -19,6 +20,7 @@ app.use(logger('dev'));
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/spotify', spotify);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

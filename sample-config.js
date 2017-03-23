@@ -4,11 +4,9 @@
 var express         = require('express');
 var path            = require('path');
 var favicon         = require('serve-favicon');
-var session         = require('express-session');
 var cookieParser    = require('cookie-parser');
 var bodyParser      = require('body-parser');
 var multer          = require('multer');
-var passport        = require('passport');
 
 
 module.exports = function(app, config) {
@@ -21,7 +19,7 @@ module.exports = function(app, config) {
     // view engine setup - USE JADE
     app.set('views', path.join(config.rootPath, 'views'));
     app.set('view engine', 'pug');
-    app.use(favicon(config.rootPath + '/public/favicon.ico')); //favicon
+    app.use(favicon(path.join(config.rootPath, 'public', 'favicon.ico')));
     //use body parser for file uploads
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
