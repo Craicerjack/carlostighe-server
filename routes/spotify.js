@@ -21,53 +21,55 @@ spotifyApi.clientCredentialsGrant().then(function(data) {
 router.route('/playlists/:playlist_id')
     .get(function(req,res,next) {
         console.log(" - querying spotify");
-        spotifyApi.getPlaylist(config.user_id, req.params.playlist_id)
+        spotifyApi.getPlaylist(config.user_id, req.params.playlist_id,  { limit: 40 })
         .then(function(data) {
-            var tracks = data.body.tracks.items.map(function(item) { 
-                return { 
-                    "type": "spotify.track",
-                    "id": item.track.id
-                }
-            });
+            console.log( " - formatting data ...");
             var formattedData = {
                 "links": { "self": "http://carlostighe.com/spotify/playlists/"+req.params.playlist_id },
                 "data": {
                     "type": "spotify.playlist",
-                    "id": data.body.id,
+                    "id": req.params.playlist_id,
                     "attributes": {
+                        "title": data.body.name,
                         "image": data.body.images[1],
-                        "name": data.body.name,
+                        "total": data.body.tracks.total,
                     },
-                    "tracks": {
-                        "links": {
-                            "self": "http://carlostighe.com/spotify/playlists/"+req.params.playlist_id
+                    "links": {
+                        "self": "http://www.carlostighe.com/spotify/playlist/"+req.params.playlist_id 
+                    },
+                    "relationships": {
+                        "tracks": {
+                            "related": data.body.href
                         },
-                        "data": tracks
+                        "data": data.body.tracks.items.map(function(item) { 
+                            return { "type": "spotify.track", "id": item.track.id }
+                        })
                     }
-                }
+                },
+                "included": data.body.tracks.items.map(function(item) {
+                    return {
+                        "type": "spotify.track",
+                        "id": item.track.id,
+                        "attributes": {
+                            "title": item.track.name,
+                            "href": item.track.external_urls.spotify,
+                            "explicit": item.track.explicit,
+                            "duration": item.track.duration_ms,
+                            "alname": item.track.album.name,
+                            "image": item.track.album.images[1],
+                            "artists": item.track.artists.map(function(art) {
+                                return art.name;
+                            }).join(', ')
+                        },
+                        "relationships": {
+                            "playlist": {
+                                "data": { "type": "spotify.playlist", "id": req.params.playlist_id }
+                            }
+                        }
+                    }
+                })
             }
-            // data.body.items.map(function(item) {
-            //     formattedData.data.push({
-            //         "type": "spotify.track",
-            //         "id": item.track.id,
-            //         "attributes": {
-            //             "album": {
-            //                 "id": item.track.album.id,
-            //                 "image": item.track.album.images[1],
-            //                 "name": item.track.album.name
-            //             },
-            //             "artists": item.track.artists.map(function(artist) {
-            //                 return {
-            //                     "name": artist.name,
-            //                     "id": artist.id
-            //                 }
-            //             }),
-            //             "explicit": item.track.explicit,
-            //             "name": item.track.name
-            //         }
-            //     });
-            // });
-            console.log(" - returning data");
+            console.log(" - returning data...");
             res.json(formattedData);
         },function(err) {
             console.log('Something went wrong!', err);
@@ -97,7 +99,8 @@ router.route('/playlists')
                     "relationships": {
                         "tracks": {
                             "related": playlist.tracks.href
-                        }
+                        },
+                        "data": []
                     }
                 });
             });
