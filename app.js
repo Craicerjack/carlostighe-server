@@ -7,7 +7,7 @@ var logger = require('morgan');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
-var spotify = require('./routes/spotify');
+var spotify = require('./routes/api/spotify');
 
 var env = process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 var app = express();
@@ -18,20 +18,20 @@ require('./config/app')(app, configuration);
 
 app.use(logger('dev'));
 
-app.use('/', index);
-app.use('/users', users);
-app.use('/spotify', spotify);
+app.use('/api', index);
+app.use('/api/spotify', spotify);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
+
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
